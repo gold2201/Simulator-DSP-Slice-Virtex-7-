@@ -3,7 +3,7 @@ CFLAGS = -Wall -Wextra -std=c23 -g
 SRC_DIR = ./src
 TARGET = dsp_simulator
 
-SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/dsp_arithmetic.c $(SRC_DIR)/register_module.c $(SRC_DIR)/dsp_io.c
+SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/dsp.c $(SRC_DIR)/utils.c $(SRC_DIR)/dsp_simulator.c
 OBJECTS = $(SOURCES:.c=.o)
 
 all: $(TARGET)
