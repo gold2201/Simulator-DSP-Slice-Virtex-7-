@@ -8,6 +8,9 @@
 #define COLOR_MAGENTA "\x1b[35m"
 #define COLOR_BLUE    "\x1b[34m"
 
+#define MAX_48 ((1LL << 47) - 1)
+#define MIN_48 (-(1LL << 47))
+
 DSP_Result dsp_multiply_with_preadd(int64_t A, int64_t D, int64_t B) {
     DSP_Result res;
     int64_t sum = A + D;
@@ -17,7 +20,8 @@ DSP_Result dsp_multiply_with_preadd(int64_t A, int64_t D, int64_t B) {
            A, D, sum, B, mult);
     res.result = mult & RESULT_MASK;
     res.carryout = (mult >> 48) & 1;
-    res.overflow = 0;
+    res.overflow = (mult > MAX_48 || mult < MIN_48);
+    res.underflow = (mult < MIN_48);
     return res;
 }
 
@@ -29,7 +33,8 @@ DSP_Result dsp_multiply(int64_t A, int64_t B) {
            A, B, mult);
     res.result = mult & RESULT_MASK;
     res.carryout = (mult >> 48) & 1;
-    res.overflow = 0;
+    res.overflow = (mult > MAX_48 || mult < MIN_48);
+    res.underflow = (mult < MIN_48);
     return res;
 }
 
@@ -56,10 +61,12 @@ DSP_Result dsp_alu(int64_t X, int64_t Y, int64_t Z, uint8_t a) {
     printf(COLOR_YELLOW "  Operation: %s\n  Raw Result: %ld\n" COLOR_RESET, opName, v);
 
     res.result = v & RESULT_MASK;
+    res.overflow = (v > MAX_48 || v < MIN_48);
+    res.underflow = (v < MIN_48);
     res.carryout = (v >> 48) & 1;
-    res.overflow = 0;
     return res;
 }
+
 
 
 
