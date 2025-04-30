@@ -55,11 +55,11 @@ int validate_input(uint8_t opm, uint8_t alm) {
     return 0;
 }   
 
-uint8_t parse_data(char* line, DSP_Registers *Regs, Control *ctrl, INMODE_Decoded *inm_d, OPMODE_Decoded *opm_d, int tick) {
+uint8_t parse_data(char* line, DSP_Registers *Regs, Control *ctrl, OPMODE_Decoded *opm_d, int tick) {
     printf(COLOR_BLUE "\n===== CLOCK CYCLE %d =====\n" COLOR_RESET, tick);
 
     char A_s[65] = "0", B_s[65] = "0", C_s[65] = "0", D_s[65] = "0";
-    char O_s[8] = "0000000", L_s[5] = "0000", CE_s[7] = "000000", RST_s[6] = "00000", IN_s[6] = "00000";
+    char O_s[8] = "0000000", L_s[5] = "0000", CE_s[7] = "000000", RST_s[6] = "00000";
 
     char* tok = strtok(line, " \n");
     while (tok) {
@@ -71,7 +71,6 @@ uint8_t parse_data(char* line, DSP_Registers *Regs, Control *ctrl, INMODE_Decode
         parse_key_value(tok, "ALUMODE", L_s, sizeof(L_s));
         parse_key_value(tok, "CE", CE_s, sizeof(CE_s));
         parse_key_value(tok, "RST", RST_s, sizeof(RST_s));
-        parse_key_value(tok, "INMODE", IN_s, sizeof(IN_s));
         tok = strtok(NULL, " \n");
     }
 
@@ -85,20 +84,18 @@ uint8_t parse_data(char* line, DSP_Registers *Regs, Control *ctrl, INMODE_Decode
     uint8_t alm = bin_to_uint64(L_s) & 0x0F;
     uint8_t ce = bin_to_uint64(CE_s) & 0x3F;
     uint8_t rst = bin_to_uint64(RST_s) & 0x1F;
-    uint8_t inm = bin_to_uint64(IN_s) & 0x1F;
 
     if(validate_input(opm, alm)) {
         return 0x10;
     }
 
     *ctrl = decode_ctrl(ce, rst);
-    *inm_d = decode_inmode(inm);
     *opm_d = decode_opmode(opm);
 
     if (ctrl->RST_A)
         Regs->regA = 0;
     else if (ctrl->CE_A)
-        Regs->regA = inm_d->zero_A ? 0 : A;
+        Regs->regA = A;
 
     if (ctrl->RST_B)
         Regs->regB = 0;
@@ -113,7 +110,7 @@ uint8_t parse_data(char* line, DSP_Registers *Regs, Control *ctrl, INMODE_Decode
     if (ctrl->RST_D)
         Regs->regD = 0;
     else if (ctrl->CE_D)
-        Regs->regD = inm_d->zero_D ? 0 : D;
+        Regs->regD = D;
 
     return alm;
 }
@@ -122,7 +119,6 @@ void process_input_file(const char *in_fn, const char *out_fn) {
     char line[MAX_LINE_LENGTH];
     DSP_Registers Regs;
     Control ctrl;
-    INMODE_Decoded inm_d;
     OPMODE_Decoded opm_d;
 
     FILE *in = fopen(in_fn, "r");
@@ -145,7 +141,7 @@ void process_input_file(const char *in_fn, const char *out_fn) {
     while(fgets(line, sizeof(line), in)) {
         tick++;
 
-        uint8_t alm = parse_data(line, &Regs, &ctrl, &inm_d, &opm_d, tick);
+        uint8_t alm = parse_data(line, &Regs, &ctrl, &opm_d, tick);
         if(alm == 0x10) {
             printf(COLOR_RED "[ERROR] parse_data()\n" COLOR_RESET);
             printf("[INFO] Переход на следующий такт\n");
@@ -155,7 +151,7 @@ void process_input_file(const char *in_fn, const char *out_fn) {
         if (ctrl.RST_Mul) {
             Regs.regMUL = 0;
         } else if(ctrl.CE_Mul) {
-            Regs.regMUL = dsp_multiply_with_preadd(Regs.regA, Regs.regD, Regs.regB, &inm_d);
+            Regs.regMUL = dsp_multiply(Regs.regA, Regs.regD, Regs.regB);
         }
         int64_t X = dsp_route_x(&Regs, &opm_d);
         int64_t Y = dsp_route_y(&Regs, &opm_d);

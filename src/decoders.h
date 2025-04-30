@@ -12,12 +12,7 @@ typedef struct {
     int RST_A, RST_B, RST_C, RST_D, RST_P, RST_Mul; 
 } Control;
 
-typedef struct {
-    int zero_A, zero_D, add_sub; 
-} INMODE_Decoded;
-
 OPMODE_Decoded decode_opmode(uint8_t op);
 Control decode_ctrl(uint8_t ce, uint8_t rst);
-INMODE_Decoded decode_inmode(uint8_t in);
 
 #endif

@@ -34,7 +34,7 @@ int64_t get_regC(const DSP_Registers*);
 int64_t get_regD(const DSP_Registers*);
 
 // операции
-int64_t dsp_multiply_with_preadd(int64_t A, int64_t D, int64_t B, INMODE_Decoded* inm_d);
+int64_t dsp_multiply(int64_t A, int64_t D, int64_t B);
 DSP_Result dsp_alu(int64_t X, int64_t Y, int64_t Z, uint8_t alm, OPMODE_Decoded* opm_d);
 int64_t dsp_route_x(DSP_Registers *Regs, OPMODE_Decoded *opm_d);
 int64_t dsp_route_y(DSP_Registers *Regs, OPMODE_Decoded *opm_d);
