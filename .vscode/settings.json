@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "decoders.h": "c",
+        "stdint.h": "c",
+        "dsp_simulator.h": "c"
+    }
+}
