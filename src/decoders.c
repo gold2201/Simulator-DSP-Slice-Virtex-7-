@@ -9,6 +9,11 @@ OPMODE_Decoded decode_opmode(uint8_t op)
     return (OPMODE_Decoded){(op & OPMODE_01), (op & OPMODE_23) >> 2, (op & OPMODE_46) >> 4};
 }
 
+INMODE_Decoded decode_inmode(uint8_t in)
+{
+    return (INMODE_Decoded){(in >> 1) & 1, !((in >> 2) & 1), (in >> 3) & 1};
+}
+
 Control decode_ctrl(uint8_t ce, uint8_t rst)
 {
     return (Control) {

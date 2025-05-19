@@ -14,12 +14,25 @@
 #define MAX_48 ((1LL << 47) - 1)
 #define MIN_48 (-(1LL << 47))
 
-int64_t dsp_multiply(int64_t A, int64_t B) {
 
+int64_t dsp_preadd(int64_t A, int64_t D, INMODE_Decoded* inm_d) {
+    int64_t sum;
+    if(!inm_d->add_sub) {
+        sum = D + A;
+        printf(COLOR_GREEN " D + A = %ld\n (D + A) " COLOR_RESET, sum);
+    } else {
+        sum = D - A;
+        printf(COLOR_GREEN " D - A = %ld\n (D - A) " COLOR_RESET, sum);
+    }
+    return sum;
+}
+
+int64_t dsp_multiply(int64_t A, int64_t B, int64_t D, INMODE_Decoded* inm_d) {
     printf(COLOR_CYAN "\n--- [DSP MULTIPLY WITH PREADD] ---\n" COLOR_RESET);
-    printf(COLOR_GREEN " A = %ld\n B = %ld\n" COLOR_RESET, A, B);
+    printf(COLOR_GREEN " A = %ld\n B = %ld\n D = %ld\n" COLOR_RESET, A, B, D);
 
-    int64_t mult = A * B;
+    int64_t sum = dsp_preadd(A, D, inm_d);
+    int64_t mult = sum * B;
 
     printf(COLOR_GREEN "* B = %ld\n" COLOR_RESET, mult);
 

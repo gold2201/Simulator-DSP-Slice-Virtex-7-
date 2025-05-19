@@ -1,4 +1,4 @@
-CC = gcc
+CC = gcc 
 CFLAGS = -Wall -Wextra -std=c23 -g
 SRC_DIR = ./src
 TARGET = dsp_simulator
